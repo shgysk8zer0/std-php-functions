@@ -130,6 +130,12 @@ function cli_init($file = 'server.json')
 {
 	if (PHP_SAPI === 'cli' and first_run(__FUNCTION__)) {
 		$file = parse_json_file(join(DIRECTORY_SEPARATOR, [dirname(__DIR__), 'config', $file]), true);
+		if (! array_key_exists('DOCUMENT_ROOT', $file)) {
+			$file['DOCUMENT_ROOT'] = rtrim(dirname(__DIR__), DIRECTORY_SEPARATOR);
+			if (DIRECTORY_SEPARATOR !== '/') {
+				$file['DOCUMENT_ROOT'] = str_replace(DIRECTORY_SEPARATOR, '/', $file['DOCUMENT_ROOT']);
+			}
+		}
 		array_map(
 			'setenv',
 			array_keys($file),
@@ -200,7 +206,7 @@ function init($session = true, $settings_file = 'settings.json')
 			new \shgysk8zer0\Core\URL('/' . join(
 				'/',
 				array_diff(
-					explode(DIRECTORY_SEPARATOR, dirname(__DIR__)),
+					explode(DIRECTORY_SEPARATOR, BASE),
 					explode('/', $_SERVER['DOCUMENT_ROOT'])
 				)
 			))
