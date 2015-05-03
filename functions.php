@@ -201,16 +201,17 @@ function init($session = true, $settings_file = 'settings.json')
 	}
 
 	if (! defined('URL')) {
-		define(
-			'URL',
-			new \shgysk8zer0\Core\URL('/' . join(
-				'/',
-				array_diff(
-					explode(DIRECTORY_SEPARATOR, BASE),
-					explode('/', $_SERVER['DOCUMENT_ROOT'])
-				)
-			))
+		$url = new \shgysk8zer0\Core\URL;
+		$url->path = join(
+			'/',
+			array_diff(
+				explode(DIRECTORY_SEPARATOR, BASE),
+				explode('/', $_SERVER['DOCUMENT_ROOT'])
+			)
 		);
+		unset($url->query, $url->user, $url->pass, $url->fragment);
+		define('URL', $url);
+		unset($url);
 	}
 
 	if (@is_object($settings->error_reporting)) {
