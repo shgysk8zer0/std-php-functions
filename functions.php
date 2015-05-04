@@ -1287,24 +1287,30 @@ function SVG_use(
 	$src = 'images/icons/combined.svg'
 )
 {
-	if (is_string($src) and !is_url($src)) {
-		$src = URL . $src;
+	if (is_string($src) and ! is_url($src)) {
+		$src = rtrim(URL, '/') . "/$src";
 	}
 
-	$dom = new \DOMDocument('1.0', 'UTF-8');
-	$svg = $dom->appendChild(new \DOMElement('svg', null, 'http://www.w3.org/2000/svg'));
-	$svg->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
-	$svg->setAttribute('version', '1.1');
-	foreach ($attributes as $attr => $val) {
-		$svg->setAttribute($attr, $val);
-	}
-	$use = $svg->appendChild(new \DOMElement('use'));
-	$use->setAttribute('xlink:href', "{$src}#{$icon}");
-	return $dom->saveHTML($svg);
+	$svg = new \shgysk8zer0\Core\HTML_El('svg', null, 'http://www.w3.org/2000/svg', true);
+	$use = new \shgysk8zer0\Core\HTML_El('use');
+	$svg($use);
+	$svg->{'@xmlns:xlink'} = 'http://www.w3.org/1999/xlink';
+	$svg->{'@version'} = '1.1';
+	$use->{'@xlink:href'} = "{$src}#{$icon}";
+
+	array_map(
+		function($attr, $val) use (&$svg)
+		{
+			$svg->{"@$attr"} = $val;
+		},
+		array_keys($attributes),
+		array_values($attributes)
+	);
+	return "$svg";
 }
 
 /**
- * SVG_us(), but as a data-URI
+ * SVG_use(), but as a data-URI
  *
  * @param string  $icon        ID from the SVG source's symbols
  * @param array   $attributes  key => value set of attributes to set on SVG
