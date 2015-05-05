@@ -126,14 +126,15 @@ function parse_json_file($file, $assoc = false, $use_include_path = false)
  * @param  string $file Config file to use
  * @return void
  */
-function cli_init($file = 'server.json')
+function cli_init($config = 'server.json')
 {
 	if (PHP_SAPI === 'cli' and first_run(__FUNCTION__)) {
-		$file = parse_json_file(join(DIRECTORY_SEPARATOR, [dirname(__DIR__), 'config', $file]), true);
-		if (! array_key_exists('DOCUMENT_ROOT', $file)) {
-			$file['DOCUMENT_ROOT'] = rtrim(dirname(__DIR__), DIRECTORY_SEPARATOR);
+		$path = defined('BASE') ? BASE : dirname(__DIR__);
+		$config = parse_json_file(join(DIRECTORY_SEPARATOR, [$path, 'config', $config]), true);
+		if (! array_key_exists('DOCUMENT_ROOT', $config)) {
+			$config['DOCUMENT_ROOT'] = rtrim($path, DIRECTORY_SEPARATOR);
 			if (DIRECTORY_SEPARATOR !== '/') {
-				$file['DOCUMENT_ROOT'] = str_replace(DIRECTORY_SEPARATOR, '/', $file['DOCUMENT_ROOT']);
+				$config['DOCUMENT_ROOT'] = str_replace(DIRECTORY_SEPARATOR, '/', $config['DOCUMENT_ROOT']);
 			}
 		}
 		array_map(
@@ -275,9 +276,9 @@ function load()
 		$timer    = \shgysk8zer0\Core\Timer::load();
 
 		if (defined('THEME')) {
-			$path = join(DIRECTORY_SEPARATOR, [dirname(__DIR__), 'components', THEME]);
+			$path = join(DIRECTORY_SEPARATOR, [defined('BASE') ? BASE : dirname(__DIR__), 'components', THEME]);
 		} else {
-			$path = join(DIRECTORY_SEPARATOR, [dirname(__DIR__), 'components']);
+			$path = join(DIRECTORY_SEPARATOR, [defined('BASE') ? BASE : dirname(__DIR__), 'components']);
 		}
 	}
 
