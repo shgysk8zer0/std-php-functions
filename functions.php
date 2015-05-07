@@ -139,8 +139,8 @@ function cli_init($config = 'server.json')
 		}
 		array_map(
 			'setenv',
-			array_keys($file),
-			array_values($file)
+			array_keys($config),
+			array_values($config)
 		);
 	}
 }
@@ -265,10 +265,12 @@ function init($session = true, $settings_file = 'settings.json')
  */
 function load()
 {
-	static $DB, $settings, $session, $login, $cookie, $path = null, $timer, $URL;
-	if (is_null($path)) {
+	static $DB, $URL, $headers, $doc, $settings, $session, $login, $cookie, $timer, $path = null;
+	if (first_run(__FUNCTION__)) {
 		$DB       = \shgysk8zer0\Core\PDO::load('connect.json');
 		$URL      = \shgysk8zer0\Core\URL::load(URL);
+		$headers  = \shgysk8zer0\Core\Headers::load();
+		$doc      = new \shgysk8zer0\Core\HTML_Doc;
 		$settings = \shgysk8zer0\Core\Resources\Parser::parseFile('settings.json');
 		$session  = \shgysk8zer0\Core\Session::load();
 		$login    = \shgysk8zer0\Core\Login::load();
@@ -282,18 +284,27 @@ function load()
 		}
 	}
 
-	array_map(function($fname) use (
-		$DB,
-		$URL,
-		$settings,
-		$session,
-		$login,
-		$cookie,
-		$timer,
-		$path
-	) {
-		require $path . DIRECTORY_SEPARATOR . $fname . '.php';
-	}, flatten(func_get_args()));
+	array_map(
+		function($arg) use (
+			$DB,
+			$URL,
+			$headers,
+			$doc,
+			$settings,
+			$session,
+			$login,
+			$cookie,
+			$timer,
+			$path
+		) {
+			if (is_string($arg)) {
+				require $path . DIRECTORY_SEPARATOR . $arg . '.php';
+			} elseif (is_array($arg)) {
+				call_user_func_array(__FUNCTION__, $arg);
+			}
+		},
+		func_get_args()
+	);
 }
 
 /**
@@ -306,7 +317,7 @@ function load()
 function load_results()
 {
 	ob_start();
-	load(func_get_args());
+	call_user_func_array('load', func_get_args());
 	return ob_get_clean();
 }
 
