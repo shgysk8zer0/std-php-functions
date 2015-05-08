@@ -266,6 +266,7 @@ function init($session = true, $settings_file = 'settings.json')
 function load()
 {
 	static $DB, $URL, $headers, $doc, $settings, $session, $login, $cookie, $timer, $path = null;
+
 	if (first_run(__FUNCTION__)) {
 		$DB       = \shgysk8zer0\Core\PDO::load('connect.json');
 		$URL      = \shgysk8zer0\Core\URL::load(URL);
@@ -300,7 +301,7 @@ function load()
 			if (is_string($arg)) {
 				require $path . DIRECTORY_SEPARATOR . $arg . '.php';
 			} elseif (is_array($arg)) {
-				call_user_func_array(__FUNCTION__, $arg);
+				call_user_func_array('load', $arg);
 			}
 		},
 		func_get_args()
