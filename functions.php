@@ -193,7 +193,7 @@ function init($session = true, $settings_file = 'settings.json')
 	if (@is_array($settings->requires)) {
 		array_map(function($path)
 		{
-			require_once $path;
+			require_once BASE . DIRECTORY_SEPARATOR . $path;
 		}, $settings->requires);
 	}
 
