@@ -211,7 +211,7 @@ function init($session = true, $settings_file = 'settings.json')
 			)
 		);
 		unset($url->query, $url->user, $url->pass, $url->fragment);
-		define('URL', rtrim($url, '/'));
+		define('URL', rtrim($url, '/') .'/');
 		unset($url);
 	}
 
