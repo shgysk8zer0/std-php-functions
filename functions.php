@@ -1278,11 +1278,10 @@ function SVG_symbols(array $svgs, $output = null)
 		$dom
 	);
 
-	$results = $dom->saveXML($dom->getElementsByTagName('svg')->item(0));
 	if (is_string($output)) {
-		file_put_contents($output, $results);
+		return $dom->saveHTMLFile($output) > 0;
 	} else {
-		return $results;
+		return $dom->saveHTML($dom->getElementsByTagName('svg')->item(0));
 	}
 }
 
