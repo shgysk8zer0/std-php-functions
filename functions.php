@@ -1238,43 +1238,45 @@ function filename($file = null)
 function SVG_symbols(array $svgs, $output = null)
 {
 	$dom = new \DOMDocument('1.0');
-	$svg = $dom->appendChild(new \DOMElement(
-		'svg',
-		null,
-		'http://www.w3.org/2000/svg'
-	));
+	$svg = $dom->appendChild(new \DOMElement('svg', null, 'http://www.w3.org/2000/svg'));
 
-	array_map(function($file) use (&$dom){
-		$tmp = new \DOMDocument('1.0');
-		$svg = file_get_contents($file);
-		if (is_string($svg) and @file_exists($file)) {
-			$svg = str_replace(["\r", "\n", "\t"], [], $svg);
-			$svg = preg_replace('/<!--(?!\s*(?:\[if [^\]]+]|<!|>))(?:(?!-->).)*-->/', null, $svg);
-			$svg = preg_replace(['/^\<svg/', '/\<\/svg\>/'], ['<symbol', '</symbol>'], $svg);
-			$tmp->loadXML($svg);
-			$symbol_el = $tmp->getElementsByTagName('symbol')->item(0);
-			$symbol_el->setAttribute('id',pathinfo($file, PATHINFO_FILENAME));
-			if (
-				!$symbol_el->hasAttribute('viewBox')
-				and $symbol_el->hasAttribute('width')
-				and $symbol_el->hasAttribute('height')
-			) {
-				$symbol_el->setAttribute(
-					'viewBox',
-					"0 0 {$symbol_el->getAttribute('width')} {$symbol_el->getAttribute('height')}"
+	array_reduce(
+		$svgs,
+		function(\DOMDocument $dom, $file)
+		{
+			$tmp = new \DOMDocument('1.0');
+			$svg = file_get_contents($file);
+			if (is_string($svg) and @file_exists($file)) {
+				$svg = str_replace(["\r", "\n", "\t"], [], $svg);
+				$svg = preg_replace('/<!--(?!\s*(?:\[if [^\]]+]|<!|>))(?:(?!-->).)*-->/', null, $svg);
+				$svg = preg_replace(['/^\<svg/', '/\<\/svg\>/'], ['<symbol', '</symbol>'], $svg);
+				$tmp->loadXML($svg);
+				$symbol_el = $tmp->getElementsByTagName('symbol')->item(0);
+				$symbol_el->setAttribute('id', pathinfo($file, PATHINFO_FILENAME));
+				if (
+					!$symbol_el->hasAttribute('viewBox')
+					and $symbol_el->hasAttribute('width')
+					and $symbol_el->hasAttribute('height')
+				) {
+					$symbol_el->setAttribute(
+						'viewBox',
+						"0 0 {$symbol_el->getAttribute('width')} {$symbol_el->getAttribute('height')}"
+					);
+				}
+				$symbol_el->setAttribute('width', '100%');
+				$symbol_el->setAttribute('height', '100%');
+
+				$symbol = $dom->importNode(
+					$tmp->getElementsByTagName('symbol')->item(0),
+					true
 				);
+
+				$dom->documentElement->appendChild($symbol);
 			}
-			$symbol_el->setAttribute('width', '100%');
-			$symbol_el->setAttribute('height', '100%');
-
-			$symbol = $dom->importNode(
-				$tmp->getElementsByTagName('symbol')->item(0),
-				true
-			);
-
-			$dom->documentElement->appendChild($symbol);
-		}
-	}, $svgs);
+			return $dom;
+		},
+		$dom
+	);
 
 	$results = $dom->saveXML($dom->getElementsByTagName('svg')->item(0));
 	if (is_string($output)) {
