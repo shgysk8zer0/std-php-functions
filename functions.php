@@ -26,6 +26,12 @@ if (! function_exists('mb_strimwidth')) {
 		return substr($str, $start, $width);
 	}
 }
+if (!function_exists('mb_strlen')) {
+	function mb_strlen($str)
+	{
+		return strlen($str);
+	}
+}
 if (! function_exists('http_parse_headers')) {
 	function http_parse_headers($raw_headers)
 	{
