@@ -617,6 +617,9 @@ function address_to_gps($Address = null)
 function is_ajax()
 {
 	return (
+		array_key_exists('Accept', $_SERVER)
+		and $_SERVER['Accept'] === 'application/json'
+	) or (
 		array_key_exists('HTTP_REQUEST_TYPE', $_SERVER)
 		and $_SERVER['HTTP_REQUEST_TYPE'] === 'AJAX'
 	);
@@ -1248,7 +1251,7 @@ function SVG_symbols(array $svgs, $output = null)
 			$svg = file_get_contents($file);
 			if (is_string($svg) and @file_exists($file)) {
 				$svg = str_replace(["\r", "\n", "\t"], [], $svg);
-				$svg = preg_replace('/<!--(?!\s*(?:\[if [^\]]+]|<!|>))(?:(?!-->).)*-->/', null, $svg);
+				$svg = preg_replace('/' . \shgysk8zer0\Core_API\Abstracts\RegExp::HTML_COMMENT . '/', null, $svg);
 				$svg = preg_replace(['/^\<svg/', '/\<\/svg\>/'], ['<symbol', '</symbol>'], $svg);
 				$tmp->loadXML($svg);
 				$symbol_el = $tmp->getElementsByTagName('symbol')->item(0);
@@ -1305,22 +1308,25 @@ function SVG_use(
 		$src = rtrim(URL, '/') . "/$src";
 	}
 
-	$svg = new \shgysk8zer0\Core\HTML_El('svg', null, 'http://www.w3.org/2000/svg', true);
-	$use = new \shgysk8zer0\Core\HTML_El('use');
-	$svg($use);
-	$svg->{'@xmlns:xlink'} = 'http://www.w3.org/1999/xlink';
-	$svg->{'@version'} = '1.1';
-	$use->{'@xlink:href'} = "{$src}#{$icon}";
+	$dom = new \DOMDocument('1.0', 'UTF-8');
+	$svg = $dom->appendChild($dom->createElementNS('http://www.w3.org/2000/svg', 'svg'));
+	$use = $svg->appendChild($dom->createElement('use'));
+	$use->setAttribute('xlink:href', "{$src}#{$icon}");
+
+	$attributes = array_merge(
+		array(
+			'xmlns:xlink'=> 'http://www.w3.org/1999/xlink',
+			'version' => '1.1'
+		),
+		$attributes
+	);
 
 	array_map(
-		function($attr, $val) use (&$svg)
-		{
-			$svg->{"@$attr"} = $val;
-		},
+		[$svg, 'setAttribute'],
 		array_keys($attributes),
 		array_values($attributes)
 	);
-	return "$svg";
+	return $dom->saveXML($svg);
 }
 
 /**
