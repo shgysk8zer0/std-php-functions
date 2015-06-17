@@ -1,0 +1,6 @@
+/tags
+*.bak
+*.save
+*~
+*.log
+*.orig
