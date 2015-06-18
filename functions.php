@@ -65,6 +65,46 @@ if (! function_exists('http_parse_headers')) {
 	}
 }
 
+if (! function_exists('array_some')) {
+	/**
+	 * Tests whether some element in the array passes the test implemented by the provided function.
+	 *
+	 * @param  array    $arr      The array to test
+	 * @param  Callable $callback The test to run
+	 *
+	 * @return bool               Whether any array item passed the test
+	 */
+	function array_some(array $arr, Callable $callback)
+	{
+		foreach ($arr as $item) {
+			if (call_user_func($callback, $item)) {
+				return true;
+			}
+		}
+		return false;
+	}
+}
+
+if (! function_exists('array_every')) {
+	/**
+	 * Tests whether all elements in the array pass the test implemented by the provided function.
+	 *
+	 * @param  array    $arr      The array to test
+	 * @param  Callable $callback The test to run
+	 *
+	 * @return bool               If every item in the array passed the test
+	 */
+	function array_every(array $arr, Callable $callback)
+	{
+		foreach ($arr as $item) {
+			if (! call_user_func($callback, $item)) {
+				return false;
+			}
+		}
+		return true;
+	}
+}
+
 /**
  * Prevents functions registering from executing multiple times {Opt-in}.
  *
