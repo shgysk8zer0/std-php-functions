@@ -1,6 +1,7 @@
 <?php
 $errors   = new \shgysk8zer0\Core\Error_Event;
 $reporter = \shgysk8zer0\Core\Errors::load();
+$login    = \shgysk8zer0\Core\Login::load();
 
 $errors($reporter);
 
