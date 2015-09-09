@@ -1,15 +1,13 @@
 <?php
+set_include_path(getenv('CONFIG_DIR') . PATH_SEPARATOR . get_include_path());
 require_once __DIR__ . DIRECTORY_SEPARATOR . 'functions.php';
+require_once dirname(__DIR__) . DIRECTORY_SEPARATOR . 'classes/shgysk8zer0/core/autoloader.php';
 cli_init();
-
-set_include_path(join(PATH_SEPARATOR, [
-	realpath(getenv('AUTOLOAD_DIR')),
-	realpath(getenv('CONFIG_DIR')),
-	get_include_path()
-]));
-
-spl_autoload_extensions(getenv('AUTOLOAD_EXTS'));
-spl_autoload_register(getenv('AUTOLOAD_FUNC'));
+$autoloader = new \shgysk8zer0\Core\Autoloader(
+	getenv('AUTOLOAD_FUNC'),
+	getenv('AUTOLOAD_DIR'),
+	explode(',', getenv('AUTOLOAD_EXTS'))
+);
 
 if (PHP_SAPI === 'cli') {
 	assert_options(ASSERT_ACTIVE, true);
@@ -24,4 +22,3 @@ if (PHP_SAPI === 'cli') {
 	assert_options(ASSERT_BAIL, false);
 	assert_options(ASSERT_WARNING, false);
 }
-
