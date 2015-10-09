@@ -311,10 +311,11 @@ function init($session = true, $settings_file = 'settings.json')
  */
 function load()
 {
-	static $DB, $URL, $headers, $doc, $settings, $session, $login, $cookie, $timer, $path = null;
+	static $DB, $console, $URL, $headers, $doc, $settings, $session, $login, $cookie, $timer, $path = null;
 
 	if (first_run(__FUNCTION__)) {
 		$DB       = \shgysk8zer0\Core\PDO::load('connect.json');
+		$console  = \shgysk8zer0\Core\Console::getInstance();
 		$URL      = \shgysk8zer0\Core\URL::load(URL);
 		$headers  = \shgysk8zer0\Core\Headers::load();
 		$doc      = new \shgysk8zer0\Core\HTML_Doc;
@@ -334,6 +335,7 @@ function load()
 	array_map(
 		function($arg) use (
 			$DB,
+			$console,
 			$URL,
 			$headers,
 			$doc,
