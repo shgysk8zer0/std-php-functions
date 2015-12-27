@@ -1349,7 +1349,7 @@ function SVG_symbols(array $svgs, $output = null)
 function SVG_use(
 	$icon,
 	array $attributes = array(),
-	$src = 'images/icons/combined.svg'
+	$src = 'images/combined.svg'
 )
 {
 	if (is_string($src) and ! is_url($src)) {
